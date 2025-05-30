@@ -1,44 +1,38 @@
-import { useConnect, useAddress } from "@thirdweb-dev/react";
-import { MetaMaskWallet } from "@thirdweb-dev/wallets";
-import { useAuth } from '../context/AuthContext';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useConnect, metamaskWallet } from "@thirdweb-dev/react";
+import { Wallet } from 'lucide-react';
 
-export default function ConnectWallet() {
-  const address = useAddress();
-  const { connect } = useConnect();
-  const { connectWallet } = useAuth();
-  const navigate = useNavigate();
+interface ConnectWalletProps {
+  className?: string;
+}
 
-  useEffect(() => {
-    if (address) {
-      connectWallet(address);
-      navigate('/dashboard');
-    }
-  }, [address, connectWallet, navigate]);
+const ConnectWallet: React.FC<ConnectWalletProps> = ({ className }) => {
+  const [isConnecting, setIsConnecting] = useState(false);
+  const connect = useConnect();
 
   const handleConnect = async () => {
     try {
-      await connect(MetaMaskWallet());
+      setIsConnecting(true);
+      // Connect to MetaMask wallet
+      await connect(metamaskWallet());
     } catch (error) {
-      console.error("Connection failed:", error);
-      alert("Wallet connection failed. Please try again.");
+      console.error("Failed to connect wallet:", error);
+      alert("Could not connect to wallet. Please try again.");
+    } finally {
+      setIsConnecting(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-4">
-      <h1 className="text-2xl font-semibold">Connect Your Wallet</h1>
-      {address ? (
-        <p className="text-green-600">Connected: {address}</p>
-      ) : (
-        <button
-          onClick={handleConnect}
-          className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-        >
-          Connect MetaMask
-        </button>
-      )}
-    </div>
+    <button 
+      onClick={handleConnect}
+      disabled={isConnecting}
+      className={className || "btn bg-white text-primary-800 hover:bg-gray-100 flex items-center"}
+    >
+      <Wallet size={16} className="mr-2" />
+      {isConnecting ? "Connecting..." : "Connect Wallet"}
+    </button>
   );
-}
+};
+
+export default ConnectWallet;
