@@ -1,141 +1,205 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-export type UserRole = 'viewer' | 'researcher';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut,
+  onAuthStateChanged,
+  User as FirebaseUser,
+  sendEmailVerification,
+  updateProfile
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
 
 interface User {
-  id: string;
   name: string;
-  email: string;
-  role: UserRole;
-  walletAddress: string;
-  isVerified: boolean;
-  tokens: number;
-  contributionScore: number;
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  isAdmin: boolean;
+  emailVerified: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string, role: UserRole) => Promise<void>;
-  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
-  connectWallet: (address: string) => void;
-  logout: () => void;
+  firebaseUser: FirebaseUser | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<FirebaseUser>;
+  register: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  sendVerificationEmail: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  // Ensure Firebase is initialized by checking if auth is available
+  if (!auth) {
+    console.error("Firebase auth is not initialized!");
+    // Render a fallback or error state instead of continuing with bad auth
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <div className="text-center p-8 max-w-md">
+          <h1 className="text-2xl font-bold text-red-700 mb-4">Firebase Initialization Error</h1>
+          <p className="text-gray-700">
+            There was a problem initializing Firebase. Please check your environment variables 
+            and make sure Firebase is properly configured.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Check if user is an admin by looking up in Firestore
+  const checkUserRole = async (firebaseUser: FirebaseUser): Promise<User> => {
+    try {
+      const userRef = doc(db, 'users', firebaseUser.uid);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        return {
+          name: userData.displayName || firebaseUser.displayName || '',
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          isAdmin: userData.isAdmin === true,
+          emailVerified: firebaseUser.emailVerified
+        };
+      }
+      
+      return {
+        name: firebaseUser.displayName || '',
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName,
+        isAdmin: false,
+        emailVerified: firebaseUser.emailVerified
+      };
+    } catch (error) {
+      console.error("Error checking user role:", error);
+      return {
+        name: firebaseUser.displayName || '',
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName,
+        isAdmin: false,
+        emailVerified: firebaseUser.emailVerified
+      };
+    }
+  };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) setUser(JSON.parse(storedUser));
-    setIsLoading(false);
-  }, []);
+    // Set initial loading state
+    setLoading(true);
+    
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          setFirebaseUser(firebaseUser);
+          const userData = await checkUserRole(firebaseUser);
+          setUser(userData);
+        } else {
+          setFirebaseUser(null);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Auth state change error:", error);
+        setFirebaseUser(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    });
 
-  const login = async (email: string, password: string, role: UserRole) => {
-    setIsLoading(true);
+    return () => unsubscribe();
+  }, []); // Empty dependency array means this runs once on mount
+
+  const register = async (name: string, email: string, password: string): Promise<void> => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Create the user account
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser = userCredential.user;
       
-      const userData: User = {
-        id: '1',
-        name: role === 'researcher' ? 'John Researcher' : 'John Viewer',
-        email: email,
-        role: role,
-        walletAddress: '',
-        isVerified: role === 'researcher',
-        tokens: role === 'researcher' ? 250 : 50,
-        contributionScore: role === 'researcher' ? 78 : 0
-      };
-      
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (name: string, email: string, password: string, role: UserRole) => {
-    setIsLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const userData: User = {
-        id: '1',
-        name: name,
-        email: email,
-        role: role,
-        walletAddress: '',
-        isVerified: false,
-        tokens: role === 'researcher' ? 100 : 25,
-        contributionScore: 0
-      };
-      
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-    } catch (error) {
-      console.error('Registration failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const connectWallet = (address: string) => {
-    if (user) {
-      const updatedUser = { ...user, walletAddress: address };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-    } else {
-      setUser({ 
-        id: '1', 
-        name: '', 
-        email: '', 
-        role: 'viewer', 
-        walletAddress: address, 
-        isVerified: false, 
-        tokens: 0, 
-        contributionScore: 0 
+      // Update the user's profile with their name
+      await updateProfile(newUser, {
+        displayName: name
       });
-      localStorage.setItem('user', JSON.stringify({ 
-        id: '1', 
-        name: '', 
-        email: '', 
-        role: 'viewer', 
-        walletAddress: address, 
-        isVerified: false, 
-        tokens: 0, 
-        contributionScore: 0 
-      }));
+
+      // Create user document in Firestore
+      await setDoc(doc(db, 'users', newUser.uid), {
+        displayName: name,
+        email: email,
+        isAdmin: false,
+        createdAt: new Date().toISOString()
+      });
+
+      // Send email verification
+      await sendEmailVerification(newUser);
+      
+      // Don't return anything to match the Promise<void> type
+    } catch (error) {
+      console.error("Error during registration:", error);
+      throw error;
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const login = async (email: string, password: string): Promise<FirebaseUser> => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return userCredential.user;
+    } catch (error) {
+      console.error("Error logging in:", error);
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error logging out:", error);
+      throw error;
+    }
+  };
+
+  const sendVerificationEmail = async () => {
+    if (firebaseUser && !firebaseUser.emailVerified) {
+      await sendEmailVerification(firebaseUser);
+    } else {
+      throw new Error("No user is logged in or email is already verified");
+    }
   };
 
   const value = {
     user,
-    isAuthenticated: !!user,
-    isLoading,
+    firebaseUser,
+    loading,
     login,
     register,
-    connectWallet,
-    logout
+    logout,
+    sendVerificationEmail
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

@@ -1,25 +1,34 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { Loader } from 'lucide-react';
 
 const ProtectedRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
-
-  // Show loading state while checking authentication
-  if (isLoading) {
+  const { user, loading } = useAuth();
+  
+  // Show loading state while authentication is being checked
+  if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="h-10 w-10 animate-spin text-indigo-600 mx-auto" />
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
 
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  // No user? Redirect to login
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
 
-  // Render child routes if authenticated
+  // User with unverified email? Redirect to verification page
+  if (!user.emailVerified) {
+    return <Navigate to="/verify-email" replace />;
+  }
+
+  // User is authenticated and email is verified, render the protected content
   return <Outlet />;
 };
 

@@ -8,7 +8,8 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useAuth();
+  const { user, logout } = useAuth();
+  const isAuthenticated = !!user;
   const location = useLocation();
   const navigate = useNavigate();
 
