@@ -16,7 +16,6 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
-import ConnectWallet from './pages/ConnectWallet';
 import EditProfile from './pages/EditProfile';
 import InterestedReviewer from './pages/InterestedReviewer';
 import Admin from './pages/Admin';
@@ -42,7 +41,6 @@ function App() {
             <Route index element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-            <Route path="connect-wallet" element={<ConnectWallet />} />
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
