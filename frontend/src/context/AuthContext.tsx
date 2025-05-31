@@ -30,6 +30,17 @@ interface AuthContextType {
   sendVerificationEmail: () => Promise<void>;
 }
 
+interface Window {
+  ethereum?: {
+    isMetaMask?: boolean;
+    request: (request: { method: string; params?: any[] }) => Promise<any>;
+    on: (event: string, callback: any) => void;
+    removeAllListeners: (event: string) => void;
+  };
+}
+
+
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {

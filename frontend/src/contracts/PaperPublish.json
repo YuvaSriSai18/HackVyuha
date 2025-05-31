@@ -1,0 +1,272 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "paperId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "authors",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "abstractText",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string[]",
+        "name": "keywords",
+        "type": "string[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "ipfsHash",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum PaperPublishing.AccessType",
+        "name": "access",
+        "type": "uint8"
+      }
+    ],
+    "name": "PaperPublished",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_paperId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPaper",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "internalType": "address[]",
+            "name": "authors",
+            "type": "address[]"
+          },
+          {
+            "internalType": "string",
+            "name": "abstractText",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "keywords",
+            "type": "string[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "paperId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "ipfsHash",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "publisher",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum PaperPublishing.AccessType",
+            "name": "access",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct PaperPublishing.Paper",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      }
+    ],
+    "name": "getPapersByPublisher",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextPaperId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "papers",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "abstractText",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "paperId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "ipfsHash",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum PaperPublishing.AccessType",
+        "name": "access",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "papersByPublisher",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_title",
+        "type": "string"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_authors",
+        "type": "address[]"
+      },
+      {
+        "internalType": "string",
+        "name": "_abstractText",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_keywords",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string",
+        "name": "_ipfsHash",
+        "type": "string"
+      },
+      {
+        "internalType": "enum PaperPublishing.AccessType",
+        "name": "_access",
+        "type": "uint8"
+      }
+    ],
+    "name": "publishPaper",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

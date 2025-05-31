@@ -1,0 +1,148 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_rchnToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_paperPublishing",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_accessControl",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_platformOwner",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_platformFeePercent",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "paperId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "payer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "platformShare",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "authorShare",
+        "type": "uint256"
+      }
+    ],
+    "name": "RevenueDistributed",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "accessControl",
+    "outputs": [
+      {
+        "internalType": "contract IAccessControl",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "paperId",
+        "type": "uint256"
+      }
+    ],
+    "name": "distributeAmount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "paperPublishing",
+    "outputs": [
+      {
+        "internalType": "contract IPaperPublishing",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "platformFeePercent",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "platformOwner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rchnToken",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
